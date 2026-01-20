@@ -1,5 +1,5 @@
 # Terracraft
-A 2D pixel game using ztream.
+A 2D pixel game using ztream and ECS.
 
 - Press WASD to move
 - Press left-button to place blocks
