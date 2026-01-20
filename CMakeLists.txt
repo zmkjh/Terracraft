@@ -1,0 +1,18 @@
+cmake_minimum_required(VERSION 3.10)
+
+project(Terracraft VERSION 0.0.1)
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+
+file(GLOB_RECURSE SRC_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.c)
+file(GLOB_RECURSE HEADER_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
+
+set(SOURCE_FILES
+    ${SRC_FILES}
+    ${HEADER_FILES}
+)
+
+list(REMOVE_ITEM SOURCE_FILES ${CMAKE_CURRENT_SOURCE_DIR}/src/ztream/*)
+
+add_executable(test ${SOURCE_FILES})
