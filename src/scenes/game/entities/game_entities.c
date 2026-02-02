@@ -10,10 +10,12 @@
 #include "../../../setting.h"
 #include "../../../global/global.h"
 #include "../../../game/properties/motion.h"
+#include "../../../game/properties/timer.h"
 #include "../../../game/traits/tex_block.h"
 #include "../../../game/traits/destroy_block.h"
 #include "../../../game/traits/fluid.h"
 #include "../../../game/traits/liquid.h"
+#include "../../../game/traits/tnt_block.h"
 #include "../../../game/traits/garbage_collective.h"
 #include "../../../global/archive.h"
 #include "../../../global/land.h"
@@ -188,6 +190,38 @@ static void set_tex_anti(float x, float y, float v_x, float v_y) {
     //ztream_entity_check_trait(&new, trait_garbage_collective);
 }
 
+static void set_tex_tnt(float x, float y, float v_x, float v_y) {
+    ztream_entity_t new = ztream_entity();
+    property_motion_t motion;
+    motion.tex            = TNT;
+    motion.displacement.x = x;
+    motion.displacement.y = y;
+    motion.velocity.x     = v_x;
+    motion.velocity.y     = v_y;
+    motion.acceleration.x = 0;
+    motion.acceleration.y = GRAVITY;
+
+    property_background_t bg;
+    bg.region.x = 0;
+    bg.region.y = 0;
+    bg.region.height = 0;
+    bg.region.width = 0;
+    bg.color.r = 0;
+    bg.color.g = 0;
+    bg.color.b = 0;
+
+    property_timer_t timer;
+    time(&timer.end);
+    timer.end += 3;
+
+    ztream_entity_add_property(&new, property_motion, &motion);
+    ztream_entity_add_property(&new, property_background, &bg);
+    ztream_entity_add_property(&new, property_timer, &timer);
+    ztream_entity_check_trait(&new, trait_tex_block);
+    ztream_entity_check_trait(&new, trait_tnt_block);
+    //ztream_entity_check_trait(&new, trait_garbage_collective);
+}
+
 static void load_tex(land_tex_t tex, float x, float y, float v_x, float v_y) {
     switch (tex) {
     case ROCK:
@@ -209,6 +243,8 @@ static void load_tex(land_tex_t tex, float x, float y, float v_x, float v_y) {
         set_tex_water(x, y, v_x, v_y);
     case WATER_FLOAT:
         set_tex_water_float(x, y, v_x, v_y);
+    case TNT:
+        set_tex_tnt(x, y, v_x, v_y);
     }
 }
 
@@ -276,7 +312,7 @@ void player_action_listener() {
     static int ztream_key_shift_state_last = ztream_key_state_release;
     static int ztream_key_shift_state_curr = ztream_key_state_release;
     if ((ztream_key_shift_state_curr = ztream_key_state(ztream_key_cap)) != ztream_key_shift_state_last && ztream_key_shift_state_curr) {
-        if (place_type == WATER) {
+        if (place_type == TNT) {
             place_type = ANTI;
         } else if (place_type == ANTI) {
             place_type = SAND;
@@ -284,6 +320,8 @@ void player_action_listener() {
             place_type = ROCK;
         } else if (place_type == ROCK) {
             place_type = WATER;
+        } else if (place_type == WATER) {
+            place_type = TNT;
         }
     }
     ztream_key_shift_state_last = ztream_key_shift_state_curr;
@@ -376,7 +414,7 @@ void entity_reload_game_scope(land_scope_t* scope, ztream_coord_t left_down) {
 void entity_reload_game() {
     cursor = ztream_cursor_coord();
     tex_block_light = cursor;
-    
+
     static int step = -2;
     tex_block_anti_blue_factor += step;
     if (tex_block_anti_blue_factor < 0 || tex_block_anti_blue_factor > 100) {

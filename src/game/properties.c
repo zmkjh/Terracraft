@@ -4,9 +4,11 @@
 
 #include "properties.h"
 #include "properties/motion.h"
+#include "properties/timer.h"
 
 void properties_init_game() {
     property_init_motion();
+    property_init_timer();
 }
 
 #endif

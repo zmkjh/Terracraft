@@ -14,6 +14,7 @@ const ztream_color_t land_tex_color[LAND_TEX_NUM-2] = {
     {240, 240, 170},    // sand
     {110, 120, 255},    // water
     {100, 100, 255},    // floating water
+    {255, 50, 50}       // tnt
 };
 
 extern int land_tex_is_floating(land_tex_t tex) {

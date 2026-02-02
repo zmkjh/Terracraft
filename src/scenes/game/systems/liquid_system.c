@@ -27,14 +27,16 @@ static void handler(ztream_data_t data) {
     land_tex_t* left  = landscopes_get((ztream_coord_t){motion->displacement.x - 1, motion->displacement.y});
     land_tex_t* right = landscopes_get((ztream_coord_t){motion->displacement.x + 1, motion->displacement.y});
 
-    if (!tex) {
+    if (!tex || *tex == AIR) {
         return;
     }
 
-    // I don't know why
-    if (*tex == AIR)
-        return;
-    
+    if (tex) {
+        FILE* fp = fopen("log.log", "a");
+        fprintf(fp, "%d\n", *tex);
+        fclose(fp);
+    }
+
     if (down && *down == AIR) {
         *down  = *tex;
         *tex   = AIR;

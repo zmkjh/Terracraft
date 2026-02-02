@@ -231,7 +231,7 @@ int update_landscopes() {
         return 0;
 
     save_landscopes();
-    
+
     if (ABS(offset_x) > LAND_SCOPE_WIDTH/2) {
         if (offset_x > 0) {
             landscopes_init_coord.x = near_x + LAND_SCOPE_WIDTH;
@@ -256,7 +256,7 @@ int update_landscopes() {
 land_tex_t* landscopes_get(ztream_coord_t coord) {
     int64_t near_x = (landscopes_init_coord.x / LAND_SCOPE_WIDTH) * LAND_SCOPE_WIDTH;
     int64_t near_y = (landscopes_init_coord.y / LAND_SCOPE_HEIGHT) * LAND_SCOPE_HEIGHT;
-    
+
     if (coord.x < near_x - LAND_SCOPE_WIDTH ||
         coord.x >= near_x + LAND_SCOPE_WIDTH ||
         coord.y < near_y - LAND_SCOPE_HEIGHT ||

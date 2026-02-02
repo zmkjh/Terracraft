@@ -6,7 +6,7 @@
 #include "../ztream/header.h"
 #include "../setting.h"
 
-#define LAND_TEX_NUM 10
+#define LAND_TEX_NUM 11
 
 // liquid has two state, floating tex should be the normal tex + 1
 
@@ -21,6 +21,7 @@ typedef enum {
     SAND,
     WATER,
     WATER_FLOAT,
+    TNT,
 } land_tex_t;
 
 #define LAND_TEX_TOBE_FLOATING(tex) ((tex) + 1)
