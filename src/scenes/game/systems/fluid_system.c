@@ -27,6 +27,10 @@ static void handler(ztream_data_t data) {
         return;
     }
 
+    if (*tex != motion->tex) {
+        return;
+    }
+
     for (int i = 0; i < FLUID_SPACE_NUM; i++) {
         land_tex_t* space = landscopes_get((ztream_coord_t){motion->displacement.x + fluid_space[i][0], motion->displacement.y + fluid_space[i][1]});
         if (space && *space == AIR) {
@@ -45,7 +49,8 @@ void system_init_fluid_system() {
 }
 
 void system_dependency_fluid_system() {
-    ztream_system_add_dependency(system_fluid_system, system_tex_block_system);
+    ztream_system_add_dependency(system_fluid_system, system_listener);
+    ztream_system_add_dependency(system_tex_block_system, system_fluid_system);
 }
 
 #endif

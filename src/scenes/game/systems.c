@@ -6,8 +6,6 @@
 #include "systems/tex_block_system.h"
 #include "systems/fluid_system.h"
 #include "systems/liquid_system.h"
-#include "systems/destroy_block_system.h"
-#include "systems/garbage_collector.h"
 #include "systems/explode_system.h"
 
 void systems_init_game() {
@@ -15,16 +13,13 @@ void systems_init_game() {
     system_init_tex_block_system();
     system_init_fluid_system();
     system_init_liquid_system();
-    system_init_destroy_block_system();
     system_init_explode_system();
-    //system_init_garbage_collector();
 
     system_dependency_tex_block_system();
     system_dependency_fluid_system();
     system_dependency_liquid_system();
     system_dependency_motion_system();
     system_dependency_explode_system();
-    //system_dependency_garbage_collector();
 }
 
 #endif

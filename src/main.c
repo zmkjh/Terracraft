@@ -28,7 +28,7 @@ void quit() {
 int main() {
     ztream_init(TITLE, LOGIN_PAGE_REGION.width, LOGIN_PAGE_REGION.height, quit);
     ztream_set_font(FONT_TYPE, FONT_SIZE);
-    
+
     srand((unsigned)time(NULL));
 
     archive_load();
@@ -55,6 +55,6 @@ int main() {
         ztream_clear();
         ztream_fps_hold(FPS);
     }
-    
+
     return 0;
 }

@@ -12,6 +12,7 @@
 #include "../../../game/properties/motion.h"
 #include "../../../game/properties/timer.h"
 #include "../../../game/traits/tex_block.h"
+#include "../../../game/traits/tnt_block.h"
 #include "../../../game/traits/destroy_block.h"
 #include "../../../game/traits/fluid.h"
 #include "../../../game/traits/liquid.h"
@@ -20,10 +21,9 @@
 #include "../../../global/archive.h"
 #include "../../../global/land.h"
 #include "../systems/tex_block_system.h"
-#include "../systems/garbage_collector.h"
 #include <math.h>
+#include <stdio.h>
 
-#define TEX_BLOCK_IN_ROW_MAX 16
 #define LOG(x) { FILE* log = fopen("log.txt", "a+"); fprintf(log, x"\n"); fclose(log); }
 
 ztream_entity_t     entity_game_background;
@@ -69,7 +69,6 @@ static void set_tex_water(float x, float y, float v_x, float v_y) {
     ztream_entity_add_property(&new, property_background, &bg);
     ztream_entity_check_trait(&new, trait_tex_block);
     ztream_entity_check_trait(&new, trait_liquid);
-    //ztream_entity_check_trait(&new, trait_garbage_collective);
 }
 
 static void set_tex_water_float(float x, float y, float v_x, float v_y) {
@@ -96,7 +95,6 @@ static void set_tex_water_float(float x, float y, float v_x, float v_y) {
     ztream_entity_add_property(&new, property_background, &bg);
     ztream_entity_check_trait(&new, trait_tex_block);
     ztream_entity_check_trait(&new, trait_liquid);
-    //ztream_entity_check_trait(&new, trait_garbage_collective);
 }
 
 static void set_tex_sand(float x, float y, float v_x, float v_y) {
@@ -123,7 +121,6 @@ static void set_tex_sand(float x, float y, float v_x, float v_y) {
     ztream_entity_add_property(&new, property_background, &bg);
     ztream_entity_check_trait(&new, trait_tex_block);
     ztream_entity_check_trait(&new, trait_fluid);
-    //ztream_entity_check_trait(&new, trait_garbage_collective);
 }
 
 static void set_tex_normal(land_tex_t tex, float x, float y, float v_x, float v_y) {
@@ -149,7 +146,6 @@ static void set_tex_normal(land_tex_t tex, float x, float y, float v_x, float v_
     ztream_entity_add_property(&new, property_motion, &motion);
     ztream_entity_add_property(&new, property_background, &bg);
     ztream_entity_check_trait(&new, trait_tex_block);
-    //ztream_entity_check_trait(&new, trait_garbage_collective);
 }
 
 static void set_tex_rock(float x, float y, float v_x, float v_y) {
@@ -187,7 +183,6 @@ static void set_tex_anti(float x, float y, float v_x, float v_y) {
     ztream_entity_add_property(&new, property_motion, &motion);
     ztream_entity_add_property(&new, property_background, &bg);
     ztream_entity_check_trait(&new, trait_tex_block);
-    //ztream_entity_check_trait(&new, trait_garbage_collective);
 }
 
 static void set_tex_tnt(float x, float y, float v_x, float v_y) {
@@ -211,15 +206,13 @@ static void set_tex_tnt(float x, float y, float v_x, float v_y) {
     bg.color.b = 0;
 
     property_timer_t timer;
-    time(&timer.end);
-    timer.end += 3;
+    timer.end = time(&timer.end) + 3;
 
     ztream_entity_add_property(&new, property_motion, &motion);
     ztream_entity_add_property(&new, property_background, &bg);
     ztream_entity_add_property(&new, property_timer, &timer);
     ztream_entity_check_trait(&new, trait_tex_block);
     ztream_entity_check_trait(&new, trait_tnt_block);
-    //ztream_entity_check_trait(&new, trait_garbage_collective);
 }
 
 static void load_tex(land_tex_t tex, float x, float y, float v_x, float v_y) {
@@ -241,17 +234,20 @@ static void load_tex(land_tex_t tex, float x, float y, float v_x, float v_y) {
         break;
     case WATER:
         set_tex_water(x, y, v_x, v_y);
+        break;
     case WATER_FLOAT:
         set_tex_water_float(x, y, v_x, v_y);
+        break;
     case TNT:
         set_tex_tnt(x, y, v_x, v_y);
+        break;
     }
 }
 
 static void update_tex(land_tex_t tex, float x, float y, float v_x, float v_y) {
     land_tex_t* dst = landscopes_get((ztream_coord_t){x, y});
 
-    if (!dst || *dst == tex || land_tex_is_floating(*dst) && LAND_TEX_TONOT_FLOATING(*dst) == tex) {
+    if (!dst || *dst == tex || *dst == ANIMAL || land_tex_is_floating(*dst) && LAND_TEX_TONOT_FLOATING(*dst) == tex) {
         return;
     }
 
@@ -259,8 +255,6 @@ static void update_tex(land_tex_t tex, float x, float y, float v_x, float v_y) {
 
     load_tex(tex, x, y, v_x, v_y);
 }
-
-static void garbage_collector_callback();
 
 void entity_init_game() {
     background_init();
@@ -277,9 +271,6 @@ void entity_init_game() {
     entity_game_updater = ztream_entity();
     property_listener_t update_listener = &entity_reload_game;
     ztream_entity_add_property(&entity_game_updater, property_listener, &update_listener);
-
-    // not available now
-    //ztream_system_set_callback(system_garbage_collector, &garbage_collector_callback);
 }
 
 void player_action_listener() {
@@ -303,10 +294,6 @@ void player_action_listener() {
     }
     if (ztream_key_state('S') == ztream_key_state_push) {
         motion->velocity.y -= 1;
-    }
-
-    if (ztream_key_state('R') == ztream_key_state_push) {
-        ztream_system_unlock(system_garbage_collector);
     }
 
     static int ztream_key_shift_state_last = ztream_key_state_release;
@@ -344,7 +331,7 @@ void player_action_listener() {
 
             land_tex_t* tex = landscopes_get((ztream_coord_t){x, y});
             if (tex && *tex >= 0) {
-                if (tex) {
+                if (tex && *tex != ANIMAL) {
                     *tex = AIR;
                 }
             }
@@ -422,6 +409,9 @@ void entity_reload_game() {
         tex_block_anti_blue_factor += step;
     }
 
+    tex_block_tnt_twinkle_tick += 1;
+    tex_block_tnt_twinkle_tick %= 3;
+
     if (update_landscopes() || !ztream_container_size(&left_down_coords)) {
         int64_t near_x = (landscopes_init_coord.x / LAND_SCOPE_WIDTH) * LAND_SCOPE_WIDTH;
         int64_t near_y = (landscopes_init_coord.y / LAND_SCOPE_HEIGHT) * LAND_SCOPE_HEIGHT;
@@ -431,17 +421,6 @@ void entity_reload_game() {
         entity_reload_game_scope(&landscopes[0][0], (ztream_coord_t){near_x - LAND_SCOPE_WIDTH, near_y});
         entity_reload_game_scope(&landscopes[0][1], (ztream_coord_t){near_x - LAND_SCOPE_WIDTH, near_y - LAND_SCOPE_HEIGHT});
     }
-
-    /* not available :(
-    if (ztream_container_size(&left_down_coords) > TEX_BLOCK_IN_ROW_MAX) {
-        ztream_system_unlock(system_garbage_collector);
-    }
-    */
-}
-
-static void garbage_collector_callback() {
-    ztream_system_lock(system_garbage_collector);
-    ztream_container_clear(&left_down_coords);
 }
 
 #endif

@@ -9,6 +9,7 @@
 #include "../../../common/systems/listener.h"
 #include "../../../game/traits/liquid.h"
 #include "tex_block_system.h"
+#include "../../../common/systems/listener.h"
 
 ztream_system_t system_liquid_system;
 
@@ -27,14 +28,12 @@ static void handler(ztream_data_t data) {
     land_tex_t* left  = landscopes_get((ztream_coord_t){motion->displacement.x - 1, motion->displacement.y});
     land_tex_t* right = landscopes_get((ztream_coord_t){motion->displacement.x + 1, motion->displacement.y});
 
-    if (!tex || *tex == AIR) {
+    if (!tex) {
         return;
     }
 
-    if (tex) {
-        FILE* fp = fopen("log.log", "a");
-        fprintf(fp, "%d\n", *tex);
-        fclose(fp);
+    if (*tex != motion->tex) {
+        return;
     }
 
     if (down && *down == AIR) {
@@ -95,7 +94,7 @@ void system_init_liquid_system() {
 
 void system_dependency_liquid_system() {
     ztream_system_add_dependency(system_liquid_system, system_listener);
-    ztream_system_add_dependency(system_liquid_system, system_tex_block_system);
+    ztream_system_add_dependency(system_tex_block_system, system_liquid_system);
 }
 
 #endif

@@ -30,6 +30,11 @@ static void handler(ztream_data_t data) {
     if (!landscopes_get((ztream_coord_t){motion->displacement.x, motion->displacement.y}))
         return;
 
+    if (*landscopes_get((ztream_coord_t){motion->displacement.x, motion->displacement.y}) != motion->tex) {
+        if (motion->tex != ANIMAL)
+            return;
+    }
+
     float a_x = motion->acceleration.x;
     float a_y = motion->acceleration.y;
     if (motion->acceleration.x > 0 && (!landscopes_get((ztream_coord_t){motion->displacement.x + 1, motion->displacement.y}) || *landscopes_get((ztream_coord_t){motion->displacement.x + 1, motion->displacement.y}) != AIR)) {
@@ -56,7 +61,7 @@ static void handler(ztream_data_t data) {
 
     float v_x = motion->velocity.x;
     float v_y = motion->velocity.y;
-    
+
     int s_x = xt(motion->displacement.x, v_x, a_x);
     int s_y = xt(motion->displacement.y, v_y, a_y);
     v_x = vt(motion->velocity.x, a_x);

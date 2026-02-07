@@ -4,6 +4,7 @@
 #define ZTREAM_ECS_C
 
 #include "ecs.h"
+#include "container.c"
 #include <stdlib.h>
 
 static inline void ztream_ecs_init() {
@@ -13,6 +14,7 @@ static inline void ztream_ecs_init() {
     ztream_ecs.systems              = ztream_container_alloc(ZTREAM_TYPE_SINGLE(ztream_system_struct_t), 8);
     ztream_ecs.system_sequence      = ztream_container_alloc(ZTREAM_TYPE_SINGLE(ztream_system_t), 8);
     ztream_ecs.system_sequence_should_reload = 1;
+    ztream_ecs.entity_trash         = ztream_container_alloc(ZTREAM_TYPE_SINGLE(ztream_entity_t), 0);
 }
 
 static inline void ztream_ecs_system_reload() {
@@ -56,6 +58,12 @@ static inline void ztream_ecs_system_reload() {
 static inline void ztream_ecs_run() {
     if (ztream_ecs.system_sequence_should_reload)
         ztream_ecs_system_reload();
+
+    for (int i = 0; i < ztream_container_size(&ztream_ecs.entity_trash); i++) {
+        ztream_entity_t* entity; ZTREAM_DATA_GET(entity, ztream_container_get(&ztream_ecs.entity_trash, i));
+        ztream_entity_erase(entity);
+    }
+    ztream_container_clear(&ztream_ecs.entity_trash);
 
     ztream_size_t sequence_size = ztream_container_size(&ztream_ecs.system_sequence);
     for (ztream_size_t i = 0; i < sequence_size; i++) {
@@ -155,6 +163,7 @@ static inline ztream_entity_t ztream_entity() {
     ztream_entity_struct_t*  entity_struct = ZTREAM_DATA_DECODE(ztream_hive_data(&ztream_ecs.entities, &entity), ztream_entity_struct_t);
     entity_struct->properties              = ztream_container_alloc(ZTREAM_TYPE_SINGLE(ztream_hive_itor_t), 1);
     entity_struct->traits                  = ztream_container_alloc(ZTREAM_TYPE_SINGLE(ztream_hive_itor_t), 0);
+    entity_struct->trashed                 = 0;
     return entity;
 }
 
@@ -290,7 +299,7 @@ static inline ztream_entity_info_t ztream_entity_move_out(ztream_entity_t* entit
 static inline ztream_entity_t ztream_entity_move_in(ztream_entity_info_t* info) {
     ztream_entity_t entity = ztream_entity();
     ztream_entity_struct_t* entity_struct = ZTREAM_DATA_DECODE(ztream_hive_data(&ztream_ecs.entities, &entity), ztream_entity_struct_t);
-    
+
     ztream_container_revalue(&entity_struct->properties, ztream_container_size(&info->properties));
     ztream_container_revalue(&entity_struct->traits, ztream_container_size(&info->traits));
 
@@ -299,7 +308,7 @@ static inline ztream_entity_t ztream_entity_move_in(ztream_entity_info_t* info) 
         if (reg->valid) {
             ztream_hive_itor_t*         itor_data       = ZTREAM_DATA_DECODE(ztream_container_get(&entity_struct->properties, property), ztream_hive_itor_t);
             ztream_property_struct_t*   property_struct = ZTREAM_DATA_DECODE(ztream_container_get(&ztream_ecs.properties, property), ztream_property_struct_t);
-            
+
             *itor_data = ztream_hive_emplace(&property_struct->hive);
             memcpy(ztream_hive_data(&property_struct->hive, itor_data), reg->data, property_struct->hive.single);
         }
@@ -399,6 +408,18 @@ static inline void ztream_entity_erase(ztream_entity_t* entity) {
     ztream_container_free(&entity_struct->properties);
     ztream_container_free(&entity_struct->traits);
     ztream_hive_release(&ztream_ecs.entities, entity);
+}
+
+static inline void ztream_entity_trash(ztream_entity_t* entity) {
+    if (!ztream_hive_iterator_valid(entity))
+        return;
+
+    ztream_entity_struct_t* entity_struct = ZTREAM_DATA_DECODE(ztream_hive_data(&ztream_ecs.entities, entity), ztream_entity_struct_t);
+    if (entity_struct->trashed)
+        return;
+
+    entity_struct->trashed = 1;
+    ztream_container_push_back(&ztream_ecs.entity_trash, entity);
 }
 
 static inline ztream_scene_t ztream_scene() {

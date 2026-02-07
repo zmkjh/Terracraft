@@ -26,6 +26,7 @@ typedef struct {
     ztream_container_t properties;
     // type: ztream_hive_itor_t;
     ztream_container_t traits;
+    int trashed;
 } ztream_entity_struct_t;
 
 typedef struct {
@@ -71,6 +72,8 @@ typedef struct {
     // type: ztream_system_t
     ztream_container_t system_sequence;
     int                system_sequence_should_reload;
+    // type ztream_entity_t
+    ztream_container_t entity_trash;
 } ztream_ecs_t;
 
 extern ztream_ecs_t ztream_ecs;
@@ -85,7 +88,10 @@ static inline void                  ztream_entity_del_property(ztream_entity_t* 
 static inline int                   ztream_entity_check_trait(ztream_entity_t* entity, ztream_trait_t trait);
 static inline void                  ztream_entity_throw_trait(ztream_entity_t* entity, ztream_trait_t trait);
 static inline ztream_data_t         ztream_entity_get(ztream_entity_t* entity, ztream_property_t property);
+// not recommand
 static inline void                  ztream_entity_erase(ztream_entity_t* entity);
+// recommand
+static inline void                  ztream_entity_trash(ztream_entity_t* entity);
 
 static inline ztream_property_t     ztream_property(ztream_size_t single, ztream_ctor_t ctor, ztream_dtor_t dtor);
 static inline ztream_trait_t        ztream_trait(ztream_property_t* property, ztream_size_t property_num);

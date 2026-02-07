@@ -10,7 +10,6 @@
 #include "../../../setting.h"
 #include "../../../common/systems/listener.h"
 #include "motion_system.h"
-#include "garbage_collector.h"
 #include <math.h>
 
 #define PI 3.14159265
@@ -35,6 +34,7 @@
 ztream_system_t system_tex_block_system;
 ztream_coord_t  tex_block_light;
 int             tex_block_anti_blue_factor;
+int             tex_block_tnt_twinkle_tick;
 
 static inline float L2(float x1, float y1, float x2, float y2) {
     return pow(pow(x1 - x2, 2) + pow((y1 - y2)*2.0f, 2), 0.5);
@@ -83,17 +83,11 @@ static void handler(ztream_data_t data) {
     land_tex_t* tex = landscopes_get((ztream_coord_t){motion->displacement.x, motion->displacement.y});
 
     if (!tex) {
-        bg->region.width = 0;
-        bg->region.height = 0;
         return;
     }
 
     if (*tex != motion->tex) {
-        bg->region.width = 0;
-        bg->region.height = 0;
-
-        ztream_entity_erase(entity);
-
+        ztream_entity_trash(entity);
         return;
     }
 
@@ -126,6 +120,23 @@ static void handler(ztream_data_t data) {
         factor = factor < BOUND_ANTI ? BOUND_ANTI : factor;
         bg->color.b *= NON_LINEAR(tex_block_anti_blue_factor/100.0f);
     } else {
+        if (*tex == TNT) {
+            switch (tex_block_tnt_twinkle_tick) {
+            case 0:
+                bg->color.r *= 0.1;
+                bg->color.g *= 0.1;
+                bg->color.b *= 0.1;
+                break;
+            case 1:
+                bg->color.r = 255;
+                bg->color.g = 255;
+                bg->color.b = 255;
+                break;
+            case 2:
+                break;
+            }
+        }
+
         brightness_tune(&bg->color, factor);
         saturation_tune(&bg->color, factor);
     }
