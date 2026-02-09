@@ -187,13 +187,15 @@ static void action_login() {
     if (user_id == -1) {
         return;
     }
-    
+
     ztream_scene_erase(&scene_login);
     ztream_resize(GAME_PAGE_REGION.width, GAME_PAGE_REGION.height);
 
     load_user_info();
     landscopes_init_coord = user_info.coord;
     load_landscopes();
+
+    ztream_set_font(FONT_TYPE, 18, 18, FALSE);
 
     ztream_scene_launch(&scene_game);
 }
@@ -220,7 +222,7 @@ static void entity_init_login_button() {
     ztream_entity_add_property(&entity_login_button, property_foreground, &fg);
     ztream_entity_add_property(&entity_login_button, property_background, &bg);
     ztream_entity_add_property(&entity_login_button, property_button, &LOGIN_BUTTON_REGION);
-    
+
     property_action_t action = action_login;
     ztream_entity_add_property(&entity_login_button, property_action, &action);
 

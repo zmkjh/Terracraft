@@ -7,7 +7,7 @@
 #define TITLE                           "Terracraft"
 #define FPS                             120
 #define FONT_TYPE                       L"Consolas"
-#define FONT_SIZE                       24
+#define FONT_SIZE                       20
 
 #define ARCHIVE_USERS_PATH              "archive/users.bin"
 #define ARCHIVE_LANDS_PATH              "archive/lands/"
@@ -32,10 +32,10 @@
 #define LOGIN_BUTTON_COLOR_FG           (ztream_color_t){250, 250, 250}
 #define LOGIN_BUTTON_CONTENT            U"登录"
 
-#define GAME_PAGE_REGION                (ztream_region_t){.width = 60, .height = 25}
+#define GAME_PAGE_REGION                (ztream_region_t){.width = 40, .height = 40}
 #define GAME_PAGE_COLOR                 (ztream_color_t){230, 250, 255}
 #define GAME_PLAYER_REGION              (ztream_region_t){.x = GAME_PAGE_REGION.width/2 - 1, .y = GAME_PAGE_REGION.height/2, .width = 1, .height = 1}
-#define GAME_PLAYER_UNICODE             U"🐧"
+#define GAME_PLAYER_UNICODE             U"₹"
 #define GAME_PLAYER_COLOR               (ztream_color_t){50, 50, 50}
 
 #define LAND_SCOPE_WIDTH                64

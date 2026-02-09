@@ -3,6 +3,7 @@
 #ifndef STREAM_C
 #define STREAM_C
 
+#include "stream.h"
 #include "admin.h"
 #include "ztream.h"
 #include <stdio.h>
@@ -155,6 +156,27 @@ static inline void ztream_update() {
     if (width != ztream.buffer_width-1 || height != ztream.buffer_height) {
         ztream_window_resize();
     }
+
+    CONSOLE_FONT_INFOEX cfi;
+
+    GetCurrentConsoleFontEx(ztream.out_handle, TRUE, &cfi);
+
+    cfi.cbSize = sizeof(cfi);
+    cfi.nFont = 0;
+
+    if (ztream.strict || (cfi.dwFontSize.Y <= 0 || cfi.dwFontSize.Y >= 255)) {
+        cfi.dwFontSize.X = ztream.font_size_x;
+        cfi.dwFontSize.Y = ztream.font_size_y;
+    } else {
+        float scale = ztream.font_size_x/(float)ztream.font_size_y;
+        cfi.dwFontSize.X = scale * cfi.dwFontSize.Y;
+    }
+
+    cfi.FontFamily = FF_DONTCARE;
+    cfi.FontWeight = FW_NORMAL;
+    wcscpy(cfi.FaceName, ztream.font_type);
+
+    SetCurrentConsoleFontEx(ztream.out_handle, FALSE, &cfi);
 }
 
 static ztream_func_t _destroy_callback;
@@ -188,17 +210,11 @@ static inline void ztream_resize(uint32_t width, uint32_t height) {
     ztream_window_resize();
 }
 
-static inline void ztream_set_font(wchar_t* name, uint32_t size) {
-    CONSOLE_FONT_INFOEX cfi;
-    cfi.cbSize = sizeof(cfi);
-    cfi.nFont = 0;
-    cfi.dwFontSize.X = 0;
-    cfi.dwFontSize.Y = size;
-    cfi.FontFamily = FF_DONTCARE;
-    cfi.FontWeight = FW_NORMAL;
-    wcscpy(cfi.FaceName, name);
-
-    SetCurrentConsoleFontEx(ztream.out_handle, FALSE, &cfi);
+static inline void ztream_set_font(wchar_t* name, uint32_t size_x, uint32_t size_y, BOOL strict) {
+    ztream.strict = strict;
+    ztream.font_size_x = size_x;
+    ztream.font_size_y = size_y;
+    wcscpy(ztream.font_type, (const wchar_t*)name);
 }
 
 #endif

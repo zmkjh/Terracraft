@@ -3,6 +3,8 @@
 #ifndef STREAM_H
 #define STREAM_H
 
+#include <minwindef.h>
+#include <stdint.h>
 #include <windows.h>
 #include <conio.h>
 #include <inttypes.h>
@@ -67,6 +69,12 @@ typedef struct {
     BOOL**          buffer_attribute_deleteline;
     BOOL**          buffer_attribute_alarm;
     BOOL**          buffer_attribute_bold;
+
+    // to maintain window
+    BOOL     strict;
+    uint32_t font_size_x;
+    uint32_t font_size_y;
+    wchar_t  font_type[80];
 } ztream_t;
 
 extern ztream_t ztream;
@@ -78,6 +86,6 @@ static inline void       ztream_close();
 static inline void       ztream_update();
 static inline void       ztream_init(const char* title, uint32_t width, uint32_t height, ztream_func_t destroy_callback);
 static inline void       ztream_resize(uint32_t width, uint32_t height);
-static inline void       ztream_set_font(wchar_t* name, uint32_t size);
+static inline void       ztream_set_font(wchar_t* name, uint32_t size_x, uint32_t size_y, BOOL strict);
 
 #endif

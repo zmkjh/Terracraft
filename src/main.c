@@ -1,6 +1,7 @@
 // copyright. wwd 2510801129 2025/11/27 - --
 
 #include "ztream/header.h"
+#include <minwindef.h>
 ztream_t        ztream;
 ztream_ecs_t    ztream_ecs;
 
@@ -27,7 +28,7 @@ void quit() {
 
 int main() {
     ztream_init(TITLE, LOGIN_PAGE_REGION.width, LOGIN_PAGE_REGION.height, quit);
-    ztream_set_font(FONT_TYPE, FONT_SIZE);
+    ztream_set_font(FONT_TYPE, 10, 20, FALSE);
 
     srand((unsigned)time(NULL));
 

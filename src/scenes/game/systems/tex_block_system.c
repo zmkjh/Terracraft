@@ -37,11 +37,11 @@ int             tex_block_anti_blue_factor;
 int             tex_block_tnt_twinkle_tick;
 
 static inline float L2(float x1, float y1, float x2, float y2) {
-    return pow(pow(x1 - x2, 2) + pow((y1 - y2)*2.0f, 2), 0.5);
+    return pow(pow(x1 - x2, 2) + pow(y1 - y2, 2), 0.5);
 }
 
 static inline float L1(float x1, float y1, float x2, float y2) {
-    return abs(x1 - x2) + abs((y1 - y2)*2.0f);
+    return abs(x1 - x2) + abs(y1 - y2);
 }
 
 #define L L2
@@ -92,7 +92,7 @@ static void handler(ztream_data_t data) {
     }
 
     bg->region.x = motion->displacement.x - (user_info.coord.x - GAME_PLAYER_REGION.x);
-    bg->region.y = GAME_PAGE_REGION.height + user_info.coord.y - GAME_PLAYER_REGION.y - motion->displacement.y - 1;
+    bg->region.y = GAME_PAGE_REGION.height + user_info.coord.y - GAME_PLAYER_REGION.y - motion->displacement.y;
     bg->color = land_tex_color[*tex];
 
     ztream_coord_t light = tex_block_light;
@@ -104,7 +104,7 @@ static void handler(ztream_data_t data) {
 
     // get a circle region
     const float R_player  = L(0, 0, GAME_PLAYER_REGION.x, GAME_PLAYER_REGION.y);
-    const float R_light   = L(0, 0, GAME_PAGE_REGION.width, GAME_PAGE_REGION.width)/4;
+    const float R_light   = L(0, 0, GAME_PAGE_REGION.width, GAME_PAGE_REGION.width)/2;
     float L2_player = L(bg->region.x, bg->region.y, GAME_PLAYER_REGION.x, GAME_PLAYER_REGION.y);
     float L2_light  = L(bg->region.x, bg->region.y, light.x, light.y);
     float f_player  = 1 - L2_player / R_player;
