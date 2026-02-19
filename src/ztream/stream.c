@@ -199,7 +199,6 @@ static inline void ztream_init(const char* title, uint32_t width, uint32_t heigh
     ztream_open(width, height);
     ztream_resize(width, height);
     ztream_clear();
-    ztream_update();
 
     _destroy_callback = destroy_callback;
     SetConsoleCtrlHandler(console_handler, TRUE);
